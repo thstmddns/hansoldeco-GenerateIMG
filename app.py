@@ -8,7 +8,7 @@ import gradio as gr
 # 모델 로드
 processor = DetrImageProcessor.from_pretrained("facebook/detr-resnet-50")
 model = DetrForObjectDetection.from_pretrained("facebook/detr-resnet-50")
-pipe = StableDiffusionInpaintPipeline.from_pretrained("runwayml/stable-diffusion-inpainting", torch_dtype=torch.float16)
+pipe = StableDiffusionInpaintPipeline.from_pretrained("runwayml/stable-diffusion-inpainting", torch_dtype=torch.float32)
 pipe = pipe.to("cuda")
 
 def detect_objects(image):
@@ -67,12 +67,12 @@ def inpaint_image(image, selected_objects):
 with gr.Blocks() as interface:
     with gr.Row():
         image_input = gr.Image(type="pil", label="Input Image")
-        objects_list = gr.CheckboxGroup(label="Detected Objects")
+        labeled_image_output = gr.Image(label="Labeled Image")
+    detect_button = gr.Button("Detect Objects")
     
-    labeled_image_output = gr.Image(label="Labeled Image")
+    objects_list = gr.CheckboxGroup(label="Detected Objects")
     final_output = gr.Image(label="Output Image")
     
-    detect_button = gr.Button("Detect Objects")
     inpaint_button = gr.Button("Remove Selected Objects")
     
     detect_button.click(fn=display_detected_objects, inputs=image_input, outputs=[labeled_image_output, objects_list])
